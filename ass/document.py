@@ -502,7 +502,7 @@ class Dialogue(_Event):
     """
     TYPE = "Dialogue"
 
-    def parse(self):
+    def parse_parts(self):
         parts = []
 
         current = []
@@ -548,7 +548,7 @@ class Dialogue(_Event):
     def tags_stripped(self):
         return Tag.strip_tags(self.parse())
 
-    def unparse(self, parts):
+    def unparse_parts(self, parts):
         self.text = "".join(n.dump() if isinstance(n, Tag)
                             else n
                             for n in parts)
