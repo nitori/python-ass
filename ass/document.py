@@ -286,97 +286,95 @@ class Document(object):
         """
         doc = cls()
 
-        lines = ((i, line)
-                 for i, line in ((i, line.rstrip("\r\n"))
-                                 for i, line in enumerate(f))
-                 if line and line[0] != ";")
+        section = None
+        for i, line in enumerate(f):
+            line = line.strip()
 
-        # [Script Info]
-        for i, line in lines:
             if i == 0 and line[:3] == "\xef\xbb\xbf":
                 line = line[3:]
 
             if i == 0 and line[0] == u"\ufeff":
                 line = line.strip(u"\ufeff")
 
-            if line[0] == ";":
+            if line.startswith(';'):
                 continue
 
-            if line.lower() == Document.SCRIPT_INFO_HEADER.lower():
-                break
+            if not line:
+                continue
 
-            raise ValueError("expected script info header")
+            if line.startswith('[') and line.endswith(']'):
+                section = line
+                field_order = None
+                continue
 
-        # field_name: field
-        for i, line in lines:
-            if (doc.script_type.lower() == doc.VERSION_ASS.lower() and
-                line.lower() == Document.STYLE_ASS_HEADER.lower()) or \
-               (doc.script_type.lower() == doc.VERSION_SSA.lower() and
-                line.lower() == Document.STYLE_SSA_HEADER.lower()):
-               break
+            if section is None:
+                raise ValueError('Content outside of any section.')
 
-            field_name, field = line.split(":", 1)
-            field = field.lstrip()
+            if section.lower() == doc.SCRIPT_INFO_HEADER.lower():
+                # [Script Info]
+                if ':' not in line:
+                    # illformed, ignore
+                    continue
 
-            if field_name in Document._field_mappings:
-                field = Document._field_mappings[field_name].parse(field)
+                field_name, field = line.split(":", 1)
+                field = field.lstrip()
 
-            doc.fields[field_name] = field
+                if field_name in Document._field_mappings:
+                    field = Document._field_mappings[field_name].parse(field)
 
-        # [V4 Styles]
-        i, line = next(lines)
+                doc.fields[field_name] = field
+            elif section.lower() in (doc.STYLE_SSA_HEADER.lower(),
+                                     doc.STYLE_ASS_HEADER.lower()):
+                # [V4 Styles] / [V4+ Styles]
+                if ':' not in line:
+                    continue
 
-        type_name, line = line.split(":", 1)
-        line = line.lstrip()
+                type_name, line = line.split(":", 1)
+                line = line.lstrip()
 
-        # Format: ...
-        if type_name.lower() != Document.FORMAT_TYPE.lower():
-            raise ValueError("expected format line in styles")
+                if field_order is None:
+                    # Format: ...
+                    if type_name.lower() != Document.FORMAT_TYPE.lower():
+                        raise ValueError("expected format line in styles")
 
-        field_order = [x.strip() for x in line.split(",")]
-        doc.styles_field_order = field_order
+                    field_order = [field.strip() for field in line.split(",")]
+                    doc.styles_field_order = field_order
+                else:
+                    # Style: ...
+                    if type_name.lower() != Style.TYPE.lower():
+                        raise ValueError("expected style line in styles")
 
-        # Style: ...
-        for i, line in lines:
-            if line.lower() == Document.EVENTS_HEADER.lower():
-                break
+                    doc.styles.append(Style.parse(line, field_order))
+            elif section.lower() == doc.EVENTS_HEADER.lower():
+                # [Events]
+                if ':' not in line:
+                    continue
 
-            type_name, line = line.split(":", 1)
-            line = line.lstrip()
+                type_name, line = line.split(":", 1)
+                line = line.lstrip()
 
-            if type_name.lower() != Style.TYPE.lower():
-                raise ValueError("expected style line in styles")
+                if field_order is None:
+                    # Format: ...
+                    if type_name.lower() != Document.FORMAT_TYPE.lower():
+                        raise ValueError("expected format line in events")
 
-            doc.styles.append(Style.parse(line, field_order))
-
-        # [Events]
-        i, line = next(lines)
-
-        type_name, line = line.split(":", 1)
-        line = line.lstrip()
-
-        # Format: ...
-        if type_name.lower() != Document.FORMAT_TYPE.lower():
-            raise ValueError("expected format line in events")
-
-        field_order = [x.strip() for x in line.split(",")]
-        doc.events_field_order = field_order
-
-        # Dialogue: ...
-        # Comment: ...
-        # etc.
-        for i, line in lines:
-            type_name, line = line.split(":", 1)
-            line = line.lstrip()
-
-            doc.events.append(({
-                "Dialogue": Dialogue,
-                "Comment":  Comment,
-                "Picture":  Picture,
-                "Sound":    Sound,
-                "Movie":    Movie,
-                "Command":  Command
-            })[type_name].parse(line, field_order))
+                    field_order = [field.strip() for field in line.split(",")]
+                    doc.events_field_order = field_order
+                else:
+                    # Dialogue: ...
+                    # Comment: ...
+                    # etc.
+                    doc.events.append(({
+                        "Dialogue": Dialogue,
+                        "Comment":  Comment,
+                        "Picture":  Picture,
+                        "Sound":    Sound,
+                        "Movie":    Movie,
+                        "Command":  Command
+                    })[type_name].parse(line, field_order))
+            else:
+                # unknown sections
+                continue
 
         return doc
 
