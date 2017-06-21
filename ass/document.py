@@ -293,6 +293,9 @@ class Document(object):
             if i == 0 and line[:3] == "\xef\xbb\xbf":
                 line = line[3:]
 
+            if i == 0 and line[:2] == "\xff\xfe":
+                line = line[2:]
+
             if i == 0 and line[0] == u"\ufeff":
                 line = line.strip(u"\ufeff")
 
