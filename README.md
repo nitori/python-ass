@@ -52,6 +52,13 @@ Or maybe the whole file:
     ...     doc.dump_file(f)
     ...
 
+
+## Tags
+
+For parsing ASS tags, you may want to consider `ass-tag-parser`:
+https://pypi.org/project/ass-tag-parser/
+
+
 ## Rendering
 
 python-ass can use libass for rendering.
