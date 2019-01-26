@@ -1,14 +1,19 @@
 from setuptools import setup
 
+with open("README.md", 'r') as fh:
+    long_description = fh.read()
+
 setup(
     name='ass',
-    version='0.4.3',
-    description='A library for parsing and manipulating Advanced SubStation Alpha subtitle files.',
-    author='Tony Young',
-    author_email='python-ass@chireiden.net',
-    keywords='ass subtitle substation alpha',
+    version="0.4.3",
+    description="A library for parsing and manipulating Advanced SubStation Alpha subtitle files.",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    author="Tony Young",
+    # author_email="python-ass@chireiden.net",
+    keywords="ass subtitle substation alpha",
     packages=['ass'],
-    url='http://github.com/chireiden/python-ass',
+    url="http://github.com/chireiden/python-ass",
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -19,6 +24,6 @@ setup(
         'Topic :: Software Development :: Libraries',
         'Topic :: Text Processing :: Markup',
     ],
-    install_requires=['setuptools'],
+    install_requires=["setuptools"],
     zip_safe=True,
 )
