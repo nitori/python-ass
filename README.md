@@ -56,7 +56,8 @@ Or maybe the whole file:
 ## Tags
 
 For parsing ASS tags, you may want to consider `ass-tag-parser`:
-https://pypi.org/project/ass-tag-parser/
+<https://pypi.org/project/ass-tag-parser/>
+(on [GitHub](https://github.com/rr-/ass_tag_parser))
 
 
 ## Rendering
