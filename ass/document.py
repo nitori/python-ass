@@ -53,6 +53,7 @@ class Color(object):
             a=self.a
         )
 
+
 Color.WHITE = Color(255, 255, 255)
 Color.RED = Color(255, 0, 0)
 Color.BLACK = Color(0, 0, 0)
@@ -216,12 +217,11 @@ class Tag(object):
         elif len(self.params) == 1:
             params = params[0]
         else:
-            params = "(" + \
-                     ",".join(_Field.dump(param) for param in self.params) + \
-                     ")"
+            params = ("("
+                      + ",".join(_Field.dump(param) for param in self.params)
+                      + ")")
 
         return "\\{name}{params}".format(name=self.name, params=params)
-
 
     @staticmethod
     def strip_tags(parts, keep_drawing_commands=False):
@@ -233,12 +233,10 @@ class Tag(object):
             if isinstance(part, Tag):
                 # if we encounter a \p1 tag, skip everything until we get to
                 # \p0
-                if not keep_drawing_commands and part.name == "p" and \
-                   part.params == [1]:
+                if not keep_drawing_commands and part.name == "p" and part.params == [1]:
                     for part2 in it:
-                        if isinstance(part2, Tag) and part2.name == "p" and \
-                           part2.params == [0]:
-                           break
+                        if isinstance(part2, Tag) and part2.name == "p"and part2.params == [0]:
+                            break
             else:
                 text_parts.append(part)
 
@@ -266,8 +264,7 @@ class Document(object):
     play_res_x = _Field("PlayResX", int, default=640)
     play_res_y = _Field("PlayResY", int, default=480)
     wrap_style = _Field("WrapStyle", int, default=0)
-    scaled_border_and_shadow = _Field("ScaledBorderAndShadow", str,
-                                      default="yes")
+    scaled_border_and_shadow = _Field("ScaledBorderAndShadow", str, default="yes")
 
     def __init__(self):
         """ Create an empty ASS document.
@@ -326,6 +323,7 @@ class Document(object):
                     field = Document._field_mappings[field_name].parse(field)
 
                 doc.fields[field_name] = field
+
             elif section.lower() in (doc.STYLE_SSA_HEADER.lower(),
                                      doc.STYLE_ASS_HEADER.lower()):
                 # [V4 Styles] / [V4+ Styles]
@@ -348,6 +346,7 @@ class Document(object):
                         raise ValueError("expected style line in styles")
 
                     doc.styles.append(Style.parse(line, field_order))
+
             elif section.lower() == doc.EVENTS_HEADER.lower():
                 # [Events]
                 if ':' not in line:
@@ -368,13 +367,14 @@ class Document(object):
                     # Comment: ...
                     # etc.
                     doc.events.append(({
-                        "Dialogue": Dialogue,
-                        "Comment":  Comment,
-                        "Picture":  Picture,
-                        "Sound":    Sound,
-                        "Movie":    Movie,
-                        "Command":  Command
+                        "Dialogue": Dialogue,  # noqa: E241
+                        "Comment":  Comment,   # noqa: E241
+                        "Picture":  Picture,   # noqa: E241
+                        "Sound":    Sound,     # noqa: E241
+                        "Movie":    Movie,     # noqa: E241
+                        "Command":  Command    # noqa: E241
                     })[type_name].parse(line, field_order))
+
             else:
                 # unknown sections
                 continue
@@ -385,23 +385,21 @@ class Document(object):
         """ Dump this ASS document to a file object.
         """
         f.write(Document.SCRIPT_INFO_HEADER + "\n")
-        for k in itertools.chain((field for field in self.DEFAULT_FIELD_ORDER
-                                  if field in self.fields),
-                                 (field for field in self.fields
-                                  if field not in self._field_mappings)):
+        for k in itertools.chain(
+            (field for field in self.DEFAULT_FIELD_ORDER if field in self.fields),
+            (field for field in self.fields if field not in self._field_mappings),
+        ):
             f.write(k + ": " + _Field.dump(self.fields[k]) + "\n")
         f.write("\n")
 
         f.write(Document.STYLE_ASS_HEADER + "\n")
-        f.write(Document.FORMAT_TYPE +  ": " +
-                ", ".join(self.styles_field_order) + "\n")
+        f.write(Document.FORMAT_TYPE + ": " + ", ".join(self.styles_field_order) + "\n")
         for style in self.styles:
             f.write(style.dump_with_type(self.styles_field_order) + "\n")
         f.write("\n")
 
         f.write(Document.EVENTS_HEADER + "\n")
-        f.write(Document.FORMAT_TYPE +  ": " +
-                ", ".join(self.events_field_order) + "\n")
+        f.write(Document.FORMAT_TYPE + ": " + ", ".join(self.events_field_order) + "\n")
         for event in self.events:
             f.write(event.dump_with_type(self.events_field_order) + "\n")
         f.write("\n")
@@ -553,8 +551,7 @@ class Dialogue(_Event):
         return Tag.strip_tags(self.parse())
 
     def unparse_parts(self, parts):
-        self.text = "".join(n.dump() if isinstance(n, Tag)
-                            else n
+        self.text = "".join(n.dump() if isinstance(n, Tag) else n
                             for n in parts)
 
 

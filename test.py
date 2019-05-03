@@ -5,8 +5,9 @@ import unittest
 
 try:
     from StringIO import StringIO
-except:
+except ImportError:
     from io import StringIO
+
 
 class TestEverything(unittest.TestCase):
     def test_parse_dump(self):
@@ -18,6 +19,7 @@ class TestEverything(unittest.TestCase):
         doc.dump_file(out)
 
         self.assertEqual(out.getvalue().strip(), contents.strip())
+
 
 if __name__ == "__main__":
     unittest.main()

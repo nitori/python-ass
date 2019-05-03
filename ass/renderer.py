@@ -6,6 +6,7 @@ from datetime import timedelta
 _libass = ctypes.cdll.LoadLibrary(ctypes.util.find_library("ass"))
 _libc = ctypes.cdll.LoadLibrary(ctypes.util.find_library("c"))
 
+
 class ImageSequence(object):
     def __init__(self, renderer, head_ptr):
         self.renderer = renderer
@@ -235,7 +236,6 @@ class Renderer(ctypes.Structure):
         ctypes.c_int
     ])
 
-
     @staticmethod
     def timedelta_to_ms(td):
         return int(td.total_seconds()) * 1000 + td.microseconds // 1000
@@ -454,8 +454,7 @@ class Track(ctypes.Structure):
         self.play_res_x = doc.play_res_x
         self.play_res_y = doc.play_res_y
         self.wrap_style = doc.wrap_style
-        self.scaled_border_and_shadow = doc.scaled_border_and_shadow.lower() == \
-                                        "yes"
+        self.scaled_border_and_shadow = (doc.scaled_border_and_shadow.lower() == "yes")
 
         self.style_format = ", ".join(doc.styles_field_order).encode("utf-8")
         self.event_format = ", ".join(doc.events_field_order).encode("utf-8")
