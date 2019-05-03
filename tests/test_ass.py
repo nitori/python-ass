@@ -32,6 +32,15 @@ class TestEverything(unittest.TestCase):
             with self.assertRaises(ValueError):
                 ass.parse(f)
 
+    def test_dump_encoding(self):
+        with self.test_ass.open("r", encoding='utf_8_sig') as f:
+            doc = ass.parse(f)
+
+        import tempfile
+        with tempfile.TemporaryFile(mode='w', encoding='utf_8') as f:
+            with self.assertWarns(UserWarning):
+                doc.dump_file(f)
+
 
 if __name__ == "__main__":
     unittest.main()
