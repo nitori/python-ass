@@ -282,16 +282,11 @@ class Document(object):
 
         section = None
         for i, line in enumerate(f):
-            line = line.strip()
-
-            if i == 0 and line[:3] == "\xef\xbb\xbf":
-                line = line[3:]
-
-            if i == 0 and line[:2] == "\xff\xfe":
-                line = line[2:]
-
-            if i == 0 and line[0] == u"\ufeff":
-                line = line.strip(u"\ufeff")
+            if i == 0:
+                bom_seqeunces = ("\xef\xbb\xbf", "\xff\xfe", "\ufeff")
+                if any(line.startswith(seq) for seq in bom_seqeunces):
+                    raise ValueError("BOM detected. Please open the file with the proper encoding,"
+                                     " usually 'utf_8_sig'")
 
             if line.startswith(';'):
                 continue
