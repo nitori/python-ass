@@ -128,11 +128,10 @@ class _Field(object):
 
     @staticmethod
     def timedelta_from_ass(v):
-        hours, mins, secs = v.split(":", 2)
-        secs, csecs = secs.split(".", 2)
+        secs_str, _, csecs = v.partition(".")
+        hours, mins, secs = map(int, secs_str.split(":"))
 
-        r = int(hours) * 60 * 60 + int(mins) * 60 + int(secs) + \
-            int(csecs) * 1e-2
+        r = hours * 60 * 60 + mins * 60 + secs + int(csecs) * 1e-2
 
         return timedelta(seconds=r)
 
@@ -145,10 +144,8 @@ class _WithFieldMeta(type):
         for base in bases:
             if hasattr(base, "_field_defs"):
                 field_defs.extend(base._field_defs)
-        field_defs.extend(tuple(sorted((f
-                                        for f in dct.values()
-                                        if isinstance(f, _Field)),
-                                key=lambda f: f._creation_order)))
+        field_defs.extend(sorted((f for f in dct.values() if isinstance(f, _Field)),
+                                 key=lambda f: f._creation_order))
         newcls._field_defs = tuple(field_defs)
 
         field_mappings = {}
