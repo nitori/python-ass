@@ -2,6 +2,7 @@
 
 from PIL import Image
 import ass
+import ass.renderer
 from datetime import timedelta
 import sys
 

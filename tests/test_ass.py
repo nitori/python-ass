@@ -2,23 +2,24 @@
 
 import ass
 import unittest
+from pathlib import Path
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
+
+folder = Path(__file__).parent
 
 
 class TestEverything(unittest.TestCase):
     def test_parse_dump(self):
-        with open("test.ass", "r") as f:
+
+        with Path(folder, "test.ass").open("r", encoding='utf_8_sig') as f:
             contents = f.read()
 
         doc = ass.parse(StringIO(contents))
         out = StringIO()
         doc.dump_file(out)
 
-        self.assertEqual(out.getvalue().strip(), contents.strip())
+        assert out.getvalue().strip() == contents.strip()
 
 
 if __name__ == "__main__":
