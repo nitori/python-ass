@@ -288,10 +288,8 @@ class Document(object):
                     raise ValueError("BOM detected. Please open the file with the proper encoding,"
                                      " usually 'utf_8_sig'")
 
-            if line.startswith(';'):
-                continue
-
-            if not line:
+            line = line.strip()
+            if not line or line.startswith(';'):
                 continue
 
             if line.startswith('[') and line.endswith(']'):
@@ -308,7 +306,7 @@ class Document(object):
                     # illformed, ignore
                     continue
 
-                field_name, field = line.split(":", 1)
+                field_name, _, field = line.partition(":")
                 field = field.lstrip()
 
                 if field_name in Document._field_mappings:
@@ -322,7 +320,7 @@ class Document(object):
                 if ':' not in line:
                     continue
 
-                type_name, line = line.split(":", 1)
+                type_name, _, line = line.partition(":")
                 line = line.lstrip()
 
                 if field_order is None:
@@ -344,7 +342,7 @@ class Document(object):
                 if ':' not in line:
                     continue
 
-                type_name, line = line.split(":", 1)
+                type_name, _, line = line.partition(":")
                 line = line.lstrip()
 
                 if field_order is None:
