@@ -206,13 +206,13 @@ class Tag(object):
 
     def __init__(self, name, params):
         self.name = name
-        self.param = params
+        self.params = params
 
     def to_ass(self):
         if not self.params:
             params = ""
         elif len(self.params) == 1:
-            params = params[0]
+            params = self.params[0]
         else:
             params = ("("
                       + ",".join(_Field.dump(param) for param in self.params)
